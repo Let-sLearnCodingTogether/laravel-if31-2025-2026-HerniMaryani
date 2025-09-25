@@ -14,7 +14,11 @@ class Spot extends Model
         'address',
         'picture'
     ];
-    public function user(){
-        return $this->belongsTo(User::class);
+    public function categoris(){
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function reviews(){
+        return $this->hasMany(Review::class);
     }
 }
