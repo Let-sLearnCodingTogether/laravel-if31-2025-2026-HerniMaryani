@@ -11,46 +11,36 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-
 class AuthenticationController extends Controller
 {
-    public function login(LoginRequest $request)
-    {
+    public function login(LoginRequest $request){
         try {
             $validated = $request->safe()->all();
             if(!Auth::attempt($validated)){
-                  return response()->json([
-                    'message' => 'Email atau password salah',
-                    'data' => null
-                ], 401);
+                return response()->json([
+                    'message' => "Email Atau Password Salah",
+                    'data'=>null
+                ],401);
             }
-
             $user = $request->user();
-            $token = $user->createToken('laravel_api', ['*'])->plainTextToken;
-            
+            $token = $user->createToken('laravel_api',['*'])->plainTextToken;
             return response()->json([
-                'message' => 'Login Berhasil',
+                'message' => "Login Berhasil",
                 'user' => $user,
                 'token' => $token
-            ], 200);
-        
-        } catch (Exception $e) {
-              return response()->json([
+            ],401);
+        } catch (Exception $e){
+            return response()->json([
                     'message' => $e->getMessage(),
                     'data' => null
                 ], 500);
         }
     }
-
-    public function register(RegisterRequest $request)
-    {
+    public function register(RegisterRequest $request){
         try {
             $validated = $request->safe()->all();
-
             $passwordHash = Hash::make($validated['password']);
-
-            $validated['password']=$passwordHash;
-
+            $validated['password'] = $passwordHash;
             $response = User::create($validated);
 
             if($response){
@@ -59,20 +49,26 @@ class AuthenticationController extends Controller
                     'data' => null
                 ], 201);
             }
-        } catch (Exception $e) {
+        } catch (Exception $e){
             return response()->json([
                     'message' => $e->getMessage(),
                     'data' => null
                 ], 500);
         }
     }
-
-    public function logout()
-    {
+    public function logout(Request $request){
         try {
-            
-        } catch (Exception $e) {
-            //
+            $request->user()->currentAccessToken()->delete();
+
+            return response()->json([
+                'message' => 'Berhasil Logout',
+                'data' => null
+            ],200);
+        } catch (Exception $e){
+            return response()->json([
+                    'message' => $e->getMessage(),
+                    'data' => null
+                ], 500);
         }
     }
 }
